@@ -235,7 +235,6 @@
   visitLink.target = "_blank";
   visitLink.rel = "noopener noreferrer";
 
-  urlNote.textContent = "Opens GSFCU Voice in a new tab.";
 
   visitLink.addEventListener("click", () => {
     urlNote.textContent = "Opening GSFCU Voice...";
