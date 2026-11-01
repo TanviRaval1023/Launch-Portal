@@ -4,30 +4,28 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#050a12">
-  <title>GSFCU Voice — Launch Sequence</title>
+  <title>GSFCU Voice — Launch</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="launch" id="launch">
-    <div class="back-glow"></div>
+    <div class="back-glow" aria-hidden="true"></div>
     <div class="starfield" aria-hidden="true"></div>
     <div class="floor-grid" aria-hidden="true"></div>
-
-    <header class="topbar">
-      <div class="wordmark"><span class="brand-mark"></span> GSFCU <b>VOICE</b></div>
-      <div class="live-label"><span class="live-dot"></span> PRODUCT LAUNCH</div>
-    </header>
 
     <section class="intro" id="intro">
       <p class="eyebrow">A NEW DIGITAL EXPERIENCE</p>
       <h1>Something meaningful<br><span>is about to begin.</span></h1>
       <p class="intro-copy">Stand by for the GSFCU Voice launch.</p>
-      <button class="start-button" id="startButton" type="button">START COUNTDOWN <span>↗</span></button>
+      <button class="start-button" id="startButton" type="button">
+        START COUNTDOWN <span aria-hidden="true">↗</span>
+      </button>
       <p class="key-hint">PRESS ENTER TO BEGIN</p>
     </section>
 
     <section class="portal-scene" id="portalScene" aria-label="Portal countdown">
-      <div class="portal-caption"><span class="caption-line"></span> INITIALIZING LAUNCH PORTAL <span class="caption-line"></span></div>
+      <div class="portal-caption"><span class="caption-line"></span> INITIALIZING LAUNCH <span class="caption-line"></span></div>
+
       <div class="portal" id="portal">
         <div class="portal-ring ring-outer"></div>
         <div class="portal-ring ring-gold"></div>
@@ -36,43 +34,49 @@
         <div class="portal-verticals"></div>
         <div class="portal-beam"></div>
         <div class="portal-core"></div>
+
         <div class="portal-platform platform-back"></div>
         <div class="portal-platform platform-mid"></div>
         <div class="portal-platform platform-top"><span></span></div>
+
         <div class="portal-ripple ripple-one"></div>
         <div class="portal-ripple ripple-two"></div>
+
         <div class="countdown" id="countdown" aria-live="assertive">10</div>
         <div class="countdown-label" id="countdownLabel">PORTAL CHARGING</div>
+
         <div class="portal-logo" id="portalLogo">
           <img src="assets/gsfcu-voice-profile.png" alt="GSFCU Voice emblem">
         </div>
-        <div class="portal-particles"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+        <div class="portal-particles" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          <i></i><i></i><i></i><i></i>
+        </div>
       </div>
-      <div class="launch-status"><span id="statusDot"></span><span id="statusText">AWAITING START COMMAND</span></div>
+
+      <div class="launch-status">
+        <span id="statusDot"></span>
+        <span id="statusText">AWAITING START COMMAND</span>
+      </div>
     </section>
 
     <section class="finale" id="finale" aria-label="GSFCU Voice launch complete">
-      <div class="finale-aura"></div>
-      <div class="finale-ring ring-a"></div>
-      <div class="finale-ring ring-b"></div>
-      <div class="finale-logo"><img src="assets/gsfcu-voice-logo.png" alt="GSFCU Voice"></div>
+      <div class="finale-aura" aria-hidden="true"></div>
+      <div class="finale-ring ring-a" aria-hidden="true"></div>
+      <div class="finale-ring ring-b" aria-hidden="true"></div>
+      <div class="finale-logo">
+        <img src="assets/gsfcu-voice-logo.png" alt="GSFCU Voice">
+      </div>
       <p class="finale-kicker">INTRODUCING</p>
       <h2>GSFCU <span>Voice</span></h2>
       <p class="finale-copy">A new experience is ready to be heard.</p>
       <div class="ready-status"><span></span> LAUNCH SEQUENCE COMPLETE</div>
-      <!-- Replace YOUR_APP_URL_HERE with the real GSFCU Voice website URL. -->
       <a class="visit-button" id="visitLink" href="http://gsfcuvoice.gsfcuniversity.ac.in/" target="_blank" rel="noopener noreferrer">
-        VISIT GSFCU VOICE <span>↗</span>
+        VISIT GSFCU VOICE <span aria-hidden="true">↗</span>
       </a>
-      <p class="url-note" id="urlNote">Add your live app URL to activate this link.</p>
-      <button class="replay-button" id="replayButton" type="button">↻ REPLAY LAUNCH</button>
+      <p class="url-note" id="urlNote"></p>
     </section>
-
-    <footer class="footer">
-      <span>GSFCU VOICE</span>
-      <span>CONNECTED BY PURPOSE</span>
-      <button id="fullscreenButton" type="button" title="Toggle fullscreen">⛶ FULLSCREEN</button>
-    </footer>
   </main>
   <script src="script.js"></script>
 </body>
