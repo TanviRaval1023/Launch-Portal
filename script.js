@@ -3,6 +3,7 @@
   "use strict";
 
   const $ = (selector) => document.querySelector(selector);
+
   const intro = $("#intro");
   const portalScene = $("#portalScene");
   const portal = $("#portal");
@@ -18,13 +19,31 @@
   const visitLink = $("#visitLink");
   const urlNote = $("#urlNote");
 
+  // Background music element
+  const launchMusic = $("#launchMusic");
+
   let timers = [];
   let current = "intro";
   let running = false;
   let audioContext = null;
 
+  // Music fade timer
+  let musicFadeTimer = null;
+  let musicStopTimer = null;
+
+  // Music volume levels
+  const MUSIC_LEVELS = {
+    countdown: 0.55,
+    reveal: 0.95,
+    finale: 0.30
+  };
+
   // Update this URL if your published application URL changes.
   const APP_URL = "http://gsfcuvoice.gsfcuniversity.ac.in/";
+
+  // ============================================
+  // TIMER MANAGEMENT
+  // ============================================
 
   function later(fn, ms) {
     const id = window.setTimeout(() => {
@@ -48,6 +67,130 @@
     portalScene.classList.toggle("active", name === "portal");
     finale.classList.toggle("active", name === "finale");
   }
+
+  // ============================================
+  // BACKGROUND MUSIC SYSTEM
+  // ============================================
+
+  function clearMusicFade() {
+    if (musicFadeTimer !== null) {
+      clearInterval(musicFadeTimer);
+      musicFadeTimer = null;
+    }
+  }
+
+  function clearMusicStop() {
+    if (musicStopTimer !== null) {
+      clearTimeout(musicStopTimer);
+      musicStopTimer = null;
+    }
+  }
+
+  // Smoothly transition music volume
+  function fadeMusic(targetVolume, duration = 2000) {
+    if (!launchMusic) return;
+
+    clearMusicFade();
+
+    const startVolume = launchMusic.volume;
+    const difference = targetVolume - startVolume;
+
+    const startTime = performance.now();
+
+    musicFadeTimer = setInterval(() => {
+      const elapsed = performance.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Smooth ease-in/ease-out transition
+      const easedProgress =
+        progress * progress * (3 - 2 * progress);
+
+      launchMusic.volume = Math.max(
+        0,
+        Math.min(
+          1,
+          startVolume + difference * easedProgress
+        )
+      );
+
+      if (progress >= 1) {
+        clearMusicFade();
+        launchMusic.volume = targetVolume;
+      }
+    }, 30);
+  }
+
+  // Countdown music: energetic anticipation
+  function countdownMusic() {
+    if (!launchMusic) return;
+
+    fadeMusic(MUSIC_LEVELS.countdown, 1800);
+  }
+
+  // Logo reveal: powerful grand-launch moment
+  function revealMusic() {
+    if (!launchMusic) return;
+
+    fadeMusic(MUSIC_LEVELS.reveal, 1200);
+  }
+
+  // Final screen: calm background atmosphere
+  function finaleMusic() {
+    if (!launchMusic) return;
+
+    fadeMusic(MUSIC_LEVELS.finale, 2800);
+  }
+
+  // Start or restart background music
+  async function startBackgroundMusic() {
+    if (!launchMusic) {
+      console.error("Background music element not found!");
+      return;
+    }
+
+    clearMusicFade();
+    clearMusicStop();
+
+    try {
+      launchMusic.pause();
+      launchMusic.currentTime = 0;
+
+      // Start with a noticeable countdown volume
+      launchMusic.volume = MUSIC_LEVELS.countdown;
+
+      await launchMusic.play();
+
+      console.log("Background music started!");
+
+    } catch (error) {
+      console.error(
+        "Background music playback failed:",
+        error
+      );
+    }
+  }
+
+  // Stop and reset background music
+  function stopBackgroundMusic() {
+    if (!launchMusic) return;
+
+    clearMusicFade();
+    clearMusicStop();
+
+    fadeMusic(0, 1000);
+
+    musicStopTimer = window.setTimeout(() => {
+      launchMusic.pause();
+      launchMusic.currentTime = 0;
+      launchMusic.volume = MUSIC_LEVELS.countdown;
+
+      musicStopTimer = null;
+    }, 1100);
+  }
+
+  // ============================================
+  // EXISTING COUNTDOWN SOUND EFFECT
+  // ============================================
 
   function playTick(value) {
     try {
@@ -92,6 +235,7 @@
 
       oscillator.start(now);
       oscillator.stop(now + (value === 0 ? 0.44 : 0.22));
+
     } catch (_) {
       // Audio is optional if the browser does not support it.
     }
@@ -107,8 +251,15 @@
     playTick(value);
   }
 
+  // ============================================
+  // LOGO REVEAL AND FINAL SCREEN
+  // ============================================
+
   function showFinale() {
     clearSequence();
+
+    // GRAND REVEAL MUSIC
+    revealMusic();
 
     portalLogo.classList.add("materialize");
     portal.classList.add("particles-on", "energy-burst");
@@ -127,22 +278,37 @@
      * After it finishes, fade out the identity label.
      * Then hold the revealed logo briefly before showing the finale.
      */
+
     later(() => {
       countdownLabel.style.transition = "opacity 0.8s ease";
       countdownLabel.style.opacity = "0";
     }, 3000);
 
-    // Show the final launch screen after the logo reveal and hold.
+    // Show final launch screen after the logo reveal and hold.
     later(() => {
       setScene("finale");
+
+      // CALM FINAL SCREEN MUSIC
+      finaleMusic();
+
     }, 8200);
   }
+
+  // ============================================
+  // START COUNTDOWN
+  // ============================================
 
   function startCountdown() {
     if (running) return;
 
     clearSequence();
     running = true;
+
+    // Start background music
+    startBackgroundMusic();
+
+    // Build anticipation during countdown
+    countdownMusic();
 
     setScene("portal");
 
@@ -170,22 +336,32 @@
         setCount(value);
 
         if (value <= 7) {
-          countdownLabel.textContent = "PORTAL SYNCHRONIZING";
+          countdownLabel.textContent =
+            "PORTAL SYNCHRONIZING";
         }
 
         if (value <= 4) {
-          countdownLabel.textContent = "CHANNELING ENERGY";
-          statusText.textContent = "PORTAL ENERGY STABILIZING";
+          countdownLabel.textContent =
+            "CHANNELING ENERGY";
+
+          statusText.textContent =
+            "PORTAL ENERGY STABILIZING";
         }
 
         if (value === 1) {
-          countdownLabel.textContent = "IDENTITY MATERIALIZING";
-          statusText.textContent = "REVEALING GSFCU VOICE";
+          countdownLabel.textContent =
+            "IDENTITY MATERIALIZING";
+
+          statusText.textContent =
+            "REVEALING GSFCU VOICE";
         }
 
         if (value === 0) {
-          countdownLabel.textContent = "IDENTITY MATERIALIZING";
-          statusText.textContent = "REVEALING GSFCU VOICE";
+          countdownLabel.textContent =
+            "IDENTITY MATERIALIZING";
+
+          statusText.textContent =
+            "REVEALING GSFCU VOICE";
 
           later(showFinale, 650);
           return;
@@ -198,8 +374,15 @@
     later(tick, 1000);
   }
 
+  // ============================================
+  // REPLAY
+  // ============================================
+
   function replay() {
     clearSequence();
+
+    // Stop and reset background music
+    stopBackgroundMusic();
 
     portalLogo.classList.remove("materialize");
     portal.classList.remove("particles-on", "energy-burst");
@@ -218,6 +401,10 @@
     setScene("intro");
   }
 
+  // ============================================
+  // FULLSCREEN
+  // ============================================
+
   async function toggleFullscreen() {
     try {
       if (!document.fullscreenElement) {
@@ -230,17 +417,22 @@
     }
   }
 
-  // Configure the application link.
+  // ============================================
+  // APPLICATION LINK
+  // ============================================
+
   visitLink.href = APP_URL;
   visitLink.target = "_blank";
   visitLink.rel = "noopener noreferrer";
-
 
   visitLink.addEventListener("click", () => {
     urlNote.textContent = "Opening GSFCU Voice...";
   });
 
-  // Controls.
+  // ============================================
+  // CONTROLS
+  // ============================================
+
   startButton.addEventListener("click", startCountdown);
   replayButton.addEventListener("click", replay);
 
@@ -248,7 +440,10 @@
     fullscreenButton.addEventListener("click", toggleFullscreen);
   }
 
-  // Keyboard shortcuts.
+  // ============================================
+  // KEYBOARD SHORTCUTS
+  // ============================================
+
   document.addEventListener("keydown", (event) => {
     const target = event.target;
 
@@ -261,7 +456,11 @@
         )
       );
 
-    if (event.key === "Enter" && current === "intro" && !typing) {
+    if (
+      event.key === "Enter" &&
+      current === "intro" &&
+      !typing
+    ) {
       startCountdown();
     }
 
@@ -279,17 +478,25 @@
       showFinale();
     }
 
-    if (event.key === "Escape" && document.fullscreenElement) {
+    if (
+      event.key === "Escape" &&
+      document.fullscreenElement
+    ) {
       document.exitFullscreen().catch(() => {});
     }
   });
 
-  // Keep fullscreen button text synchronized with browser state.
+  // ============================================
+  // FULLSCREEN BUTTON STATE
+  // ============================================
+
   document.addEventListener("fullscreenchange", () => {
     if (fullscreenButton) {
-      fullscreenButton.textContent = document.fullscreenElement
-        ? "⛶ EXIT FULLSCREEN"
-        : "⛶ FULLSCREEN";
+      fullscreenButton.textContent =
+        document.fullscreenElement
+          ? "⛶ EXIT FULLSCREEN"
+          : "⛶ FULLSCREEN";
     }
   });
+
 })();
